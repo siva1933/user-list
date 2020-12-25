@@ -10,18 +10,23 @@ function App() {
     "https://s3-ap-southeast-1.amazonaws.com/he-public-data/user14b9a23c.png"
   );
 
-  const readURL = (input) => {
-    if (!input[0].name.includes(".jpg" || ".jpeg" || ".png" || ".gif")) {
-      console.log("not image");
-      return;
-    }
-    if (input[0]) {
+  const readURL = (input = []) => {
+    if (
+      input[0] &&
+      (input[0].name.includes(".png") ||
+        input[0].name.includes(".jpg") ||
+        input[0].name.includes(".gif") ||
+        input[0].name.includes(".jpeg"))
+    ) {
       let reader = new FileReader();
       reader.readAsDataURL(input[0]);
       reader.onload = () => {
         setImageUrl(reader.result);
       };
       reader.onerror = (error) => console.log(error);
+    } else {
+      alert("not image");
+      return;
     }
   };
 
