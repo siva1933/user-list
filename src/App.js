@@ -34,15 +34,18 @@ function App() {
           await reader.readAsDataURL(ele);
           reader.onload = () => {
             l.push(reader.result);
-            if (idx === array.length - 1) resolve(l);
+            if (idx === array.length - 1) resolve(true);
           };
-          reader.onerror = (error) => console.log(error);
+          reader.onerror = (error) => {
+            console.log(error);
+            reject(error);
+          };
         }
       });
     });
 
-    bar.then((l) => {
-      setList(l);
+    bar.then((res) => {
+      if (res) setList(l);
     });
   };
 
@@ -88,7 +91,6 @@ function App() {
               onClick={() => {
                 let allImgs = document.getElementsByClassName("img-sec");
                 let zip = new JSzip();
-                console.log(allImgs);
                 let promise = new Promise((resolve, reject) => {
                   Array.from(allImgs).forEach((item, i) => {
                     toBlob(item).then((blob) => {
@@ -156,7 +158,7 @@ function App() {
               document.getElementById("file").click();
             }}
           >
-            Upload logo
+            Upload Images
           </button>
           <button
             className="btn br-4 mr-1"
