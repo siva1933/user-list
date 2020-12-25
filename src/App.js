@@ -59,20 +59,22 @@ function App() {
   return (
     <div className="App">
       <div className="selected-card">
-        {list.length > 0 &&
-          list.map((imgUrl, i) => (
-            <div
-              key={i}
-              className="img-sec"
-              ref={printRef}
-              onClick={handlePrint}
-            >
-              <img src={imgUrl} alt={"name" + i} />
-              {/* <a className="img-download" href={imgUrl} download>
+        <div className="img-wrap">
+          {list.length > 0 &&
+            list.map((imgUrl, i) => (
+              <div
+                key={i}
+                className="img-sec"
+                ref={printRef}
+                onClick={handlePrint}
+              >
+                <img src={imgUrl} alt={"name" + i} />
+                {/* <a className="img-download" href={imgUrl} download>
                 Click here
               </a> */}
-            </div>
-          ))}
+              </div>
+            ))}
+        </div>
         <div className="details-sec">
           <input
             id="file"
