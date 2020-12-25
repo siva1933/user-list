@@ -85,8 +85,8 @@
 }
 
 .img-sec img {
-  width: 200px;
-  height: 200px;
+  width: 500px;
+  height: 500px;
 }
 
 .img-sec {
@@ -169,4 +169,35 @@ textarea {
   border-bottom: 3px solid white;
   transform: rotate(-45deg);
   margin-top: -4px;
+}
+
+.img-sec {
+  position: relative;
+}
+
+.img-sec::after {
+  content: "";
+  top: 0;
+  left: 0;
+  position: absolute;
+  background-image: url(./youtube.png);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 5rem;
+  width: 500px;
+  height: 500px;
+  opacity: 0.5;
+}
+
+@media print {
+  .img-sec {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 3rem;
+  }
+
+  .img-sec::after {
+    width: 100%;
+  }
 }

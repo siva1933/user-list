@@ -1,62 +1,91 @@
-import React, { useEffect, useState } from "react";
-import _ from "lodash";
+import React, { useRef, useState } from "react";
+import { useReactToPrint } from "react-to-print";
+// import _ from "lodash";
+import { saveAs } from "file-saver";
+import { toBlob } from "html-to-image";
+import JSzip from "jszip";
 import "./App.css";
 
 function App() {
   const [list, setList] = useState([]);
-  const [sort, setSort] = useState(false);
-  const [selected, setSelected] = useState([]);
-  const [imageUrl, setImageUrl] = useState(
-    "https://s3-ap-southeast-1.amazonaws.com/he-public-data/user14b9a23c.png"
-  );
+  // const [sort, setSort] = useState(false);
+  // const [selected, setSelected] = useState([]);
+  // const [imageUrl, setImageUrl] = useState(
+  //   "https://s3-ap-southeast-1.amazonaws.com/he-public-data/user14b9a23c.png"
+  // );
 
-  const readURL = (input) => {
-    if (!input[0].name.includes(".jpg" || ".jpeg" || ".png" || ".gif")) {
-      console.log("not image");
-      return;
-    }
-    if (input[0]) {
-      let reader = new FileReader();
-      reader.readAsDataURL(input[0]);
-      reader.onload = () => {
-        setImageUrl(reader.result);
-      };
-      reader.onerror = (error) => console.log(error);
-    }
+  const printRef = useRef();
+  const handlePrint = useReactToPrint({
+    content: () => printRef.current,
+  });
+
+  const readURL = (input = []) => {
+    // console.log(input.name);
+    // if (![".jpg", ".jpeg", ".png", ".gif"].includes(input.name)) {
+    //   console.log("not image");
+    //   return;
+    // }
+
+    let l = [];
+    var bar = new Promise((resolve, reject) => {
+      Array.from(input).forEach(async (ele, idx, array) => {
+        if (ele) {
+          let reader = new FileReader();
+          await reader.readAsDataURL(ele);
+          reader.onload = () => {
+            l.push(reader.result);
+            if (idx === array.length - 1) resolve(l);
+          };
+          reader.onerror = (error) => console.log(error);
+        }
+      });
+    });
+
+    bar.then((l) => {
+      setList(l);
+    });
   };
 
-  useEffect(() => {
-    fetch(
-      "https://s3-ap-southeast-1.amazonaws.com/he-public-data/users49b8675.json"
-    )
-      .then((res) => res.json())
-      .then((res) => {
-        setList(res);
-      });
-  }, []);
+  // useEffect(() => {
+  //   fetch(
+  //     "https://s3-ap-southeast-1.amazonaws.com/he-public-data/users49b8675.json"
+  //   )
+  //     .then((res) => res.json())
+  //     .then((res) => {
+  //       setList(res);
+  //     });
+  // }, []);
 
   return (
     <div className="App">
       <div className="selected-card">
-        <div className="img-sec">
-          <img src={imageUrl} alt={"name"} />
-        </div>
+        {list.length > 0 &&
+          list.map((imgUrl, i) => (
+            <div
+              key={i}
+              className="img-sec"
+              ref={printRef}
+              onClick={handlePrint}
+            >
+              <img src={imgUrl} alt={"name" + i} />
+              {/* <a className="img-download" href={imgUrl} download>
+                Click here
+              </a> */}
+            </div>
+          ))}
         <div className="details-sec">
-          <p>
-            <span>Name:</span>
-            <input placeholder="Enter name" />
-          </p>
-          <p>
-            <span>Description:</span>
-            <textarea placeholder="Enter Description" rows="3" />
-          </p>
           <input
             id="file"
             style={{ display: "none" }}
             type="file"
             accept="image/gif, image/jpeg, image/png, image/jpg"
+            multiple
             onChange={(e) => {
               readURL(e.target.files);
+
+              // Array.from(e.target.files).forEach((element) => {
+              //   readURL(element);
+              // });
             }}
           />
           <button
@@ -70,14 +99,32 @@ function App() {
           <button
             className="btn br-4"
             onClick={() => {
-              document.getElementById("file").click();
+              let allImgs = document.getElementsByClassName("img-sec");
+              let zip = new JSzip();
+              console.log(allImgs);
+              let promise = new Promise((resolve, reject) => {
+                Array.from(allImgs).forEach((item, i) => {
+                  toBlob(item).then((blob) => {
+                    zip.file(`my-images-${new Date().getTime()}.png`, blob);
+                    if (i === allImgs.length - 1) resolve(true);
+                  });
+                });
+              });
+
+              promise.then((res) => {
+                if (res) {
+                  zip.generateAsync({ type: "blob" }).then((content) => {
+                    saveAs(content, "images.zip");
+                  });
+                }
+              });
             }}
           >
-            Save
+            Save All
           </button>
         </div>
       </div>
-      <div className="sort-btns">
+      {/* <div className="sort-btns">
         <button
           onClick={() => {
             if (!sort) {
@@ -159,7 +206,7 @@ function App() {
             Refresh
           </button>
         </div>
-      )}
+      )} */}
     </div>
   );
 }
