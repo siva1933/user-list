@@ -11,6 +11,8 @@
 # production
 /build
 
+.eslintcache
+
 package-lock.json
 
 # misc
