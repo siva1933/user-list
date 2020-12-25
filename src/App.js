@@ -58,7 +58,67 @@ function App() {
 
   return (
     <div className="App">
-      <div className="selected-card">
+      <div>
+        {list.length > 0 && (
+          <div className="details-sec">
+            <input
+              id="file"
+              style={{ display: "none" }}
+              type="file"
+              accept="image/gif, image/jpeg, image/png, image/jpg"
+              multiple
+              onChange={(e) => {
+                readURL(e.target.files);
+
+                // Array.from(e.target.files).forEach((element) => {
+                //   readURL(element);
+                // });
+              }}
+            />
+            <button
+              className="btn br-4 mr-1"
+              onClick={() => {
+                document.getElementById("file").click();
+              }}
+            >
+              Upload logo
+            </button>
+            <button
+              className="btn br-4 mr-1"
+              onClick={() => {
+                let allImgs = document.getElementsByClassName("img-sec");
+                let zip = new JSzip();
+                console.log(allImgs);
+                let promise = new Promise((resolve, reject) => {
+                  Array.from(allImgs).forEach((item, i) => {
+                    toBlob(item).then((blob) => {
+                      zip.file(`my-images-${new Date().getTime()}.png`, blob);
+                      if (i === allImgs.length - 1) resolve(true);
+                    });
+                  });
+                });
+
+                promise.then((res) => {
+                  if (res) {
+                    zip.generateAsync({ type: "blob" }).then((content) => {
+                      saveAs(content, "images.zip");
+                    });
+                  }
+                });
+              }}
+            >
+              Save All
+            </button>
+            <button
+              className={"btn br-4"}
+              onClick={() => {
+                setList([]);
+              }}
+            >
+              Clear All
+            </button>
+          </div>
+        )}
         <div className="img-wrap">
           {list.length > 0 &&
             list.map((imgUrl, i) => (
@@ -99,7 +159,7 @@ function App() {
             Upload logo
           </button>
           <button
-            className="btn br-4"
+            className="btn br-4 mr-1"
             onClick={() => {
               let allImgs = document.getElementsByClassName("img-sec");
               let zip = new JSzip();
@@ -123,6 +183,14 @@ function App() {
             }}
           >
             Save All
+          </button>
+          <button
+            className={"btn br-4"}
+            onClick={() => {
+              setList([]);
+            }}
+          >
+            Clear All
           </button>
         </div>
       </div>
