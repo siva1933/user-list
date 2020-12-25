@@ -81,7 +81,7 @@ function App() {
                 document.getElementById("file").click();
               }}
             >
-              Upload logo
+              Upload Images
             </button>
             <button
               className="btn br-4 mr-1"
